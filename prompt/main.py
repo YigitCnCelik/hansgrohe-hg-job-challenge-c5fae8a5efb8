@@ -3,6 +3,8 @@ from starlette.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import pandas as pd
 import random
+import requests
+
 
 app = FastAPI()
 
@@ -22,10 +24,19 @@ topics = df['Prompt'].tolist()
 class PromptResponse(BaseModel):
     prompt: str
 
-@app.get("/prompt/random", response_model=PromptResponse)
+
+"""@app.get("/prompt/random", response_model=PromptResponse)
 def get_random_prompt():
     random_prompt = random.choice(topics)
+    return {"prompt": random_prompt}"""
+
+@app.get("/prompt/random", response_model=PromptResponse)
+def get_random_prompt():
+    response = requests.get("https://opentdb.com/api.php?amount=1")
+    data = response.json()
+    random_prompt = data['results'][0]['question']
     return {"prompt": random_prompt}
+
 
 if __name__ == "__main__":
     import uvicorn
